@@ -1,48 +1,41 @@
-🔁 Reverse SSH Setup Script
-Dieses Bash-Skript richtet auf einem Linux-Client (z. B. Raspberry Pi) automatisch einen Reverse-SSH-Tunnel zu einem zentralen Server ein. Dadurch ist der Client selbst hinter Firewalls oder NAT erreichbar – ideal für Remote-Wartung, Monitoring oder Fernzugriff auf Geräte ohne öffentliche IP.
+## 🔁 Reverse SSH Setup Script
 
-🔧 Funktionen
-Führt alle nötigen Schritte für den Reverse-SSH-Tunnel automatisiert aus:
+Dieses Bash-Skript richtet auf einem Linux-Client (z.\u202fB. Raspberry Pi) automatisch einen **Reverse-SSH-Tunnel** zu einem zentralen Server ein. Dadurch ist der Client selbst hinter Firewalls oder NAT erreichbar \u2013 ideal f\u00fcr Remote-Wartung, Monitoring oder Fernzugriff auf Ger\u00e4te ohne \u00f6ffentliche IP.
 
-SSH-Key generieren
+### 🔧 Funktionen
 
-Key auf den Server kopieren (via sshpass)
+* F\u00fchrt alle n\u00f6tigen Schritte f\u00fcr den Reverse-SSH-Tunnel automatisiert aus:
 
-Freien Port auf dem Server dynamisch reservieren
+  * SSH-Key generieren
+  * Key auf den Server kopieren (via `sshpass`)
+  * Freien Port auf dem Server dynamisch reservieren
+  * Systemd-Service zur automatischen Tunnel-Wiederherstellung einrichten
+  * Optionaler Watchdog-Service zur \u00dcberwachung und Reaktivierung bei Tunnelverlust
+* Speichert alle relevanten Informationen in `/etc/reverse_ssh_config`
 
-Systemd-Service zur automatischen Tunnel-Wiederherstellung einrichten
+### 💠 Voraussetzungen
 
-Optionaler Watchdog-Service zur Überwachung und Reaktivierung bei Tunnelverlust
+* Auf dem Client:
 
-Speichert alle relevanten Informationen in /etc/reverse_ssh_config
+  * Debian-basiertes System (z.\u202fB. Raspberry Pi OS)
+  * Root-Rechte (z.\u202fB. via `sudo`)
+  * `sshpass` (wird bei Bedarf automatisch installiert)
+* Auf dem Server:
 
-🛠 Voraussetzungen
-Auf dem Client:
+  * Ein Linux-SSH-Server
+  * Schreibrechte im Home-Verzeichnis des Benutzerkontos (z.\u202fB. `~/rpi_ports/`)
+  * Passwortbasierte SSH-Authentifizierung erlaubt (f\u00fcr den ersten Zugriff)
 
-Debian-basiertes System (z. B. Raspberry Pi OS)
+### 🚀 Anwendung
 
-Root-Rechte (z. B. via sudo)
-
-sshpass (wird bei Bedarf automatisch installiert)
-
-Auf dem Server:
-
-Ein Linux-SSH-Server
-
-Schreibrechte im Home-Verzeichnis des Benutzerkontos (z. B. ~/rpi_ports/)
-
-Passwortbasierte SSH-Authentifizierung erlaubt (für den ersten Zugriff)
-
-🚀 Anwendung
-bash
-Kopieren
-Bearbeiten
+```bash
 sudo ./setup_reverse_ssh.sh
+```
+
 Das Skript fragt nach Serverdomain, SSH-Benutzer und Passwort, erledigt dann automatisch den Rest und aktiviert den Tunnel per systemd-Service.
 
-📦 Ergebnis
-Der Client ist über ssh -p <zugewiesener Port> <user>@<server> erreichbar.
+### 📦 Ergebnis
 
-Tunnel wird bei Verbindungsverlust automatisch neu gestartet.
-
-Protokollierung und Rückfallmechanismus via systemd-Timer enthalten.
+* Der Client ist \u00fcber `ssh -p <zugewiesener Port> <user>@<server>` erreichbar.
+* Tunnel wird bei Verbindungsverlust automatisch neu gestartet.
+* Protokollierung und R\u00fcckfallmechanismus via systemd-Timer enthalten.
