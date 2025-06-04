@@ -10,7 +10,7 @@ Dieses Bash-Skript richtet auf einem Linux-Client (z. B. Raspberry Pi) automat
   * Key auf den Server kopieren (via `sshpass`)
   * Freien Port auf dem Server dynamisch reservieren
   * Systemd-Service zur automatischen Tunnel-Wiederherstellung einrichten
-  * Optionaler Watchdog-Service zur \u00dcberwachung und Reaktivierung bei Tunnelverlust
+  * Optionaler Watchdog-Service zur überwachung und Reaktivierung bei Tunnelverlust
 * Speichert alle relevanten Informationen in `/etc/reverse_ssh_config`
 
 ### 💠 Voraussetzungen
@@ -24,7 +24,7 @@ Dieses Bash-Skript richtet auf einem Linux-Client (z. B. Raspberry Pi) automat
 
   * Ein Linux-SSH-Server
   * Schreibrechte im Home-Verzeichnis des Benutzerkontos (z.B. `~/rpi_ports/`)
-  * Passwortbasierte SSH-Authentifizierung erlaubt (f\u00fcr den ersten Zugriff)
+  * Passwortbasierte SSH-Authentifizierung erlaubt (für den ersten Zugriff)
 
 ### 🚀 Anwendung
 
