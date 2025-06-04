@@ -30,6 +30,7 @@ DEFAULT_SERVER_USER="youruser"
 DEFAULT_LOCAL_USER="pi"
 PORT_BASE=22000
 PORT_MAX=22999
+DEFAULT_INTERVAL="15"
 
 # === Verzeichnisse vorbereiten ===
 mkdir -p /run/sshd
@@ -50,6 +51,8 @@ read -p "Lokaler User für Tunnel [$DEFAULT_LOCAL_USER]: " LOCAL_USER
 LOCAL_USER=${LOCAL_USER:-$DEFAULT_LOCAL_USER}
 read -s -p "Passwort für $SERVER_USER@$SERVER: " SERVER_PASS
 echo ""
+read -p "Watchdog-Intervall in Minuten [$DEFAULT_INTERVAL]: " INTERVAL
+INTERVAL=${INTERVAL:-$DEFAULT_INTERVAL}
 
 # === sshpass installieren ===
 if ! command -v sshpass >/dev/null; then
@@ -86,7 +89,6 @@ used_file=\$HOME/rpi_ports/used_ports.txt
 connections_file=\$HOME/rpi_connections.txt
 mkdir -p \$(dirname "\$used_file")
 touch "\$used_file" "\$connections_file"
-# Freien Port finden
 for ((port=$PORT_BASE; port<=$PORT_MAX; port++)); do
   if ! grep -q ":\\\$port" "\$used_file"; then
     echo \\\$port >> "\$used_file"
@@ -112,6 +114,7 @@ CONFIG[SERVER]="$SERVER"
 CONFIG[SERVER_USER]="$SERVER_USER"
 CONFIG[LOCAL_USER]="$LOCAL_USER"
 CONFIG[PORT]="$PORT"
+CONFIG[WATCHDOG_INTERVAL]="$INTERVAL"
 save_config
 
 # === autossh prüfen ===
@@ -173,7 +176,7 @@ Description=Watchdog für Reverse SSH Tunnel
 
 [Timer]
 OnBootSec=5min
-OnUnitActiveSec=15min
+OnUnitActiveSec=${INTERVAL}min
 Unit=reverse_ssh_watchdog.service
 
 [Install]
@@ -201,3 +204,4 @@ echo "Client-ID: $CLIENT_ID"
 echo "→ SSH Port: $PORT"
 echo "→ Service: $SERVICE_NAME"
 echo "→ Konfiguration: $CONFIG_FILE"
+echo "→ Watchdog prüft alle $INTERVAL Minuten"
