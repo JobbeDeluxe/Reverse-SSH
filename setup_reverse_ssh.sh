@@ -37,6 +37,13 @@ if [ "$EUID" -ne 0 ]; then
   error_exit "Bitte als root ausführen (z.B. sudo $0)."
 fi
 
+# === Optional: SSH-Verzeichnis vorbereiten (für manche Systeme nötig) ===
+if [ ! -d /run/sshd ]; then
+  echo "Erstelle /run/sshd (falls benötigt)..."
+  mkdir -p /run/sshd
+  chmod 755 /run/sshd
+fi
+
 # === Abfragen ===
 read -p "Server-Domain [your.server.domain]: " SERVER
 SERVER=${SERVER:-your.server.domain}
