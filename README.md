@@ -1,4 +1,5 @@
 Client Seite:
+====================================
 ## 🔁 Reverse SSH Setup Script
 
 Dieses Bash-Skript richtet auf einem Linux-Client (z. B. Raspberry Pi) automatisch einen Reverse-SSH-Tunnel zu einem zentralen Server ein. Dadurch ist der Client selbst hinter Firewalls oder NAT erreichbar – ideal für Remote-Wartung, Monitoring oder Fernzugriff auf Geräte ohne öffentliche IP.
@@ -43,7 +44,7 @@ Das Skript fragt nach Serverdomain, SSH-Benutzer und Passwort, erledigt dann aut
 
 
 
-ServerSeite:
+Server Seite:
 ====================================
 Connect-Skript für Reverse-SSH-Server
 ====================================
