@@ -69,7 +69,7 @@ Voraussetzungen
 Nutzung
 -------
 
-    ./connect
+   bash ./connect_client.sh
 
 Anschließend erfolgt eine interaktive Auswahl, z. B.:
 
