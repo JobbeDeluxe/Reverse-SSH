@@ -93,30 +93,53 @@ else
   CLIENT_ID="${CONFIG[CLIENT_ID]}"
 fi
 
-# === Port manuell wählen ===
-while true; do
-  read -p "Bitte gewünschten SSH-Port wählen (z. B. 22222): " PORT
+# === Port vom Server holen und Dateien aufräumen ===
+echo "Hole freien Port vom Server..."
+PORT=$(sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER" bash -s -- "$CLIENT_ID" "$CLIENT_HOSTNAME" <<'EOF'
+used_file="$HOME/rpi_ports/used_ports.txt"
+connections_file="$HOME/rpi_connections.txt"
+mkdir -p "$(dirname "$used_file")"
+touch "$used_file" "$connections_file"
 
-  echo "Prüfe, ob Port $PORT auf dem Server belegt ist..."
+CLIENT_ID="$1"
+CLIENT_HOSTNAME="$2"
+PORT_BASE=22000
+PORT_MAX=22999
 
-  PORT_CHECK=$(sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER" bash -s <<EOF
-used_file=\$HOME/rpi_ports/used_ports.txt
-connections_file=\$HOME/rpi_connections.txt
-mkdir -p \$(dirname "\$used_file")
-touch "\$used_file" "\$connections_file"
+# Alte Einträge mit CLIENT_ID aus connections_file entfernen
+grep -v "$CLIENT_ID" "$connections_file" > "${connections_file}.tmp" || true
+mv "${connections_file}.tmp" "$connections_file"
 
-if grep -q "^$PORT\$" "\$used_file"; then
-  echo "USED"
-else
-  echo "$PORT" >> "\$used_file"
-  tmp_file=\$(mktemp)
-  grep -v "($CLIENT_ID)" "\$connections_file" > "\$tmp_file" || true
-  echo "$CLIENT_ID ($CLIENT_HOSTNAME) - Port $PORT - \$(date)" >> "\$tmp_file"
-  mv "\$tmp_file" "\$connections_file"
-  echo "OK"
-fi
+# Ports aus connections_file (ohne Einträge mit CLIENT_ID) sammeln
+USED_PORTS=$(grep -v "$CLIENT_ID" "$connections_file" | grep -o "Port [0-9]\+" | grep -o "[0-9]\+" | sort -n | uniq)
+
+# Freien Port suchen
+PORT=$PORT_BASE
+while echo "$USED_PORTS" | grep -q "^$PORT\$"; do
+  ((PORT++))
+  if [ "$PORT" -gt "$PORT_MAX" ]; then
+    echo "Kein freier Port verfügbar." >&2
+    exit 1
+  fi
+done
+
+# Neue Verbindung in connections_file eintragen
+echo "$CLIENT_ID ($CLIENT_HOSTNAME) - Port $PORT - $(date)" >> "$connections_file"
+
+# used_ports.txt aktualisieren: alte Ports des Clients entfernen + neuen Port hinzufügen
+grep -v "^$PORT\$" "$used_file" | grep -v -f <(echo "$PORT") > "${used_file}.tmp" || true
+echo "$PORT" >> "${used_file}.tmp"
+sort -n -u "${used_file}.tmp" > "$used_file"
+rm "${used_file}.tmp"
+
+echo "$PORT"
 EOF
 )
+
+if [ -z "$PORT" ]; then
+  echo "Fehler: kein freier Port gefunden." >&2
+  exit 2
+fi
 
   if [ "$PORT_CHECK" = "OK" ]; then
     echo "✅ Port $PORT wurde reserviert."
