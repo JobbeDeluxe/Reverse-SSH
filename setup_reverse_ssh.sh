@@ -112,7 +112,7 @@ touch "$used_file" "$connections_file" "$lock_file"
 flock -x 200
 
 for ((port=PORT_BASE; port<=PORT_MAX; port++)); do
-  if ! grep -q ":$port" "$used_file"; then
+  if ! grep -q "^$port\$" "$used_file"; then
     echo "$port" >> "$used_file"
     tmp_file=$(mktemp)
     grep -v "($CLIENT_ID)" "$connections_file" > "$tmp_file" || true
