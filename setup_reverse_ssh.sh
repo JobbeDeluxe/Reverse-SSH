@@ -141,14 +141,6 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-  if [ "$PORT_CHECK" = "OK" ]; then
-    echo "✅ Port $PORT wurde reserviert."
-    break
-  else
-    echo "❌ Port $PORT ist bereits vergeben. Bitte anderen wählen."
-  fi
-done
-
 if [ -z "$PORT" ]; then
   error_exit "Kein freier Port gefunden."
 fi
