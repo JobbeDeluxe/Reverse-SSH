@@ -95,26 +95,35 @@ fi
 
 # === Port vom Server holen ===
 echo "Hole freien Port vom Server..."
-PORT=$(sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER" bash -s <<EOF
-used_file=\$HOME/rpi_ports/used_ports.txt
-connections_file=\$HOME/rpi_connections.txt
-lock_file=\$HOME/rpi_ports/lockfile
-mkdir -p \$(dirname "\$used_file")
-touch "\$used_file" "\$connections_file" "\$lock_file"
+PORT=$(sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=accept-new "$SERVER_USER@$SERVER" bash -s -- "$PORT_BASE" "$PORT_MAX" "$CLIENT_ID" "$CLIENT_HOSTNAME" <<'EOF'
+PORT_BASE="$1"
+PORT_MAX="$2"
+CLIENT_ID="$3"
+CLIENT_HOSTNAME="$4"
+
+used_file="$HOME/rpi_ports/used_ports.txt"
+connections_file="$HOME/rpi_connections.txt"
+lock_file="$HOME/rpi_ports/lockfile"
+
+mkdir -p "$(dirname "$used_file")"
+touch "$used_file" "$connections_file" "$lock_file"
+
 (
 flock -x 200
-for ((port=$PORT_BASE; port<=$PORT_MAX; port++)); do
-  if ! grep -q ":\\\$port" "\$used_file"; then
-    echo \\\$port >> "\$used_file"
-    tmp_file=\$(mktemp)
-    grep -v "(\$CLIENT_ID)" "\$connections_file" > "\$tmp_file" || true
-    echo "$CLIENT_ID ($CLIENT_HOSTNAME) - Port \\\$port - \$(date)" >> "\$tmp_file"
-    mv "\$tmp_file" "\$connections_file"
-    echo \\\$port
+
+for ((port=PORT_BASE; port<=PORT_MAX; port++)); do
+  if ! grep -q ":$port" "$used_file"; then
+    echo "$port" >> "$used_file"
+    tmp_file=$(mktemp)
+    grep -v "($CLIENT_ID)" "$connections_file" > "$tmp_file" || true
+    echo "$CLIENT_ID ($CLIENT_HOSTNAME) - Port $port - $(date)" >> "$tmp_file"
+    mv "$tmp_file" "$connections_file"
+    echo "$port"
     break
   fi
 done
-) 200>"\$lock_file"
+
+) 200>"$lock_file"
 EOF
 )
 
