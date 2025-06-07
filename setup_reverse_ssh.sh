@@ -89,6 +89,8 @@ if [ -z "${CONFIG[CLIENT_ID]:-}" ]; then
   UNIQUE_SOURCE="$(date +%s)-$CLIENT_HOSTNAME-$(curl -s https://ipinfo.io/ip || echo noip)"
   CLIENT_ID=$(echo "$UNIQUE_SOURCE" | sha256sum | cut -c1-16)
   CONFIG[CLIENT_ID]="$CLIENT_ID"
+  CONFIG[CLIENT_HOSTNAME]="$CLIENT_HOSTNAME"
+  save_config  # ⬅️ direkt nach Generierung speichern!
 else
   CLIENT_ID="${CONFIG[CLIENT_ID]}"
 fi
