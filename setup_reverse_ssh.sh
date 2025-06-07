@@ -141,6 +141,7 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
+
 if [ -z "$PORT" ]; then
   error_exit "Kein freier Port gefunden."
 fi
