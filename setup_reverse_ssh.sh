@@ -168,8 +168,11 @@ fi
 SERVICE_NAME="reverse_ssh_tunnel_$LOCAL_USER"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 
-SSH_CMD="ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
-[ "$USE_AUTOSSH" = "yes" ] && SSH_CMD="$AUTOSSH_PATH -M 0 $SSH_CMD"
+if [ "$USE_AUTOSSH" = "yes" ]; then
+  EXEC_CMD="$AUTOSSH_PATH -M 0 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
+else
+  EXEC_CMD="/usr/bin/ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
+fi
 
 cat > "$SERVICE_FILE" <<EOF
 [Unit]
@@ -178,7 +181,7 @@ After=network.target
 
 [Service]
 User=$LOCAL_USER
-ExecStart=$SSH_CMD
+ExecStart=$EXEC_CMD
 Restart=always
 RestartSec=10
 
