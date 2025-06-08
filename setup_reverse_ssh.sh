@@ -47,7 +47,7 @@ fi
 # === Abfragen ===
 read -p "Server-Domain [your.server.domain]: " SERVER
 SERVER=${SERVER:-your.server.domain}
-read -p "Server-User [youruser]: " SERVER_USER
+read -p "Server-User [Server-User]: " SERVER_USER
 SERVER_USER=${SERVER_USER:-youruser}
 read -p "Lokaler User für Tunnel [pi]: " LOCAL_USER
 LOCAL_USER=${LOCAL_USER:-pi}
