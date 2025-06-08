@@ -10,8 +10,37 @@ if [ ! -f "$CONNECTIONS_FILE" ]; then
   exit 1
 fi
 
-# Clients extrahieren
-mapfile -t CLIENT_LINES < <(grep -E "Port [0-9]+" "$CONNECTIONS_FILE")
+# Funktion zur Portprüfung mit /dev/tcp
+check_port() {
+  local port=$1
+  # Verwende Timeout von 1 Sekunde
+  if timeout 1 bash -c "cat < /dev/null > /dev/tcp/127.0.0.1/$port" 2>/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Clients extrahieren und Status prüfen
+CLIENT_LINES=()
+while IFS= read -r line; do
+  if [[ -z "$line" ]]; then
+    continue
+  fi
+  
+  PORT=$(echo "$line" | grep -o "Port [0-9]\+" | grep -o "[0-9]\+")
+  HOST=$(echo "$line" | grep -o "([^)]*)" | sed 's/[()]//g')
+  CLIENT_ID=$(echo "$line" | awk '{print $1}')
+  
+  if [[ -n "$PORT" ]]; then
+    if check_port "$PORT"; then
+      STATUS="[ONLINE]"
+    else
+      STATUS="[OFFLINE]"
+    fi
+    CLIENT_LINES+=("$line $STATUS")
+  fi
+done < "$CONNECTIONS_FILE"
 
 if [ "${#CLIENT_LINES[@]}" -eq 0 ]; then
   echo "Keine aktiven Clients gefunden."
