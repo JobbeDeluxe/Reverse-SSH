@@ -76,8 +76,8 @@ bash ./connect_client.sh
 Anschließend erfolgt eine interaktive Auswahl, z. B.:
 
     Verfügbare Clients:
-    [1] 12ab34cd56ef78gh (raspberrypi1) - Port 22001 - 2025-06-04 18:00:00
-    [2] 90ef12ab34cd56gh (raspberrypi2) - Port 22002 - 2025-06-04 18:01:00
+    [1] 12ab34cd56ef78gh (raspberrypi1) - Port 22001 - 2025-06-04 18:00:00 [ONLINE]
+    [2] 90ef12ab34cd56gh (raspberrypi2) - Port 22002 - 2025-06-04 18:01:00 [OFFLINE]
     [0] Beenden
 
     Mit welchem Client verbinden? [1-2 / 0=exit]:
