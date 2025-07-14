@@ -159,9 +159,17 @@ save_config
 
 # === autossh prüfen ===
 USE_AUTOSSH="no"
-if apt-get install -y autossh && command -v autossh >/dev/null; then
+if command -v autossh &>/dev/null; then
   USE_AUTOSSH="yes"
   AUTOSSH_PATH=$(command -v autossh)
+else
+  echo "autossh nicht gefunden – versuche zu installieren..."
+  if apt-get update && apt-get install -y autossh && command -v autossh &>/dev/null; then
+    USE_AUTOSSH="yes"
+    AUTOSSH_PATH=$(command -v autossh)
+  else
+    echo "⚠️ autossh konnte nicht installiert werden – fallback auf ssh"
+  fi
 fi
 
 # === systemd Service erstellen ===
@@ -169,9 +177,9 @@ SERVICE_NAME="reverse_ssh_tunnel_$LOCAL_USER"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 
 if [ "$USE_AUTOSSH" = "yes" ]; then
-  EXEC_CMD="$AUTOSSH_PATH -M 0 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
+  EXEC_CMD="$AUTOSSH_PATH -M 0 -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
 else
-  EXEC_CMD="/usr/bin/ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
+  EXEC_CMD="/usr/bin/ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -N -R $PORT:localhost:22 $SERVER_USER@$SERVER"
 fi
 
 cat > "$SERVICE_FILE" <<EOF
